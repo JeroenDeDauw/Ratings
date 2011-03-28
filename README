@@ -1,0 +1,13 @@
+These is the readme file for the Ratings extension.
+	
+Extension page on mediawiki.org: http://www.mediawiki.org/wiki/Extension:Ratings
+Latest version of the readme file: http://svn.wikimedia.org/viewvc/mediawiki/trunk/extensions/Ratings/README?view=co
+
+== About ==
+
+The Ratings extension provides a tag extension that when embedded in a page allows users to
+rate different "properties" of the page. It is based on the [https://secure.wikimedia.org/wikipedia/mediawiki/wiki/Extension:Rating_Bar Rating Bar]
+extension, and primerely adds the ability to vote on multiple properties per page.
+
+The main reason for creating a new extension is that Rating Bar has been replaced by "W4G Rating Bar",
+which is not open source, so does not allow for adding any improvements. 
