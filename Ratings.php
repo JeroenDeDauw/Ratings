@@ -77,8 +77,11 @@ if ( defined( 'MW_SUPPORTS_RESOURCE_MODULES' ) ) {
 	);
 	
 	$wgResourceModules['ext.ratings.stars'] = $moduleTemplate + array(
+		'styles' => array(
+			'starrating/star-rating/jquery.rating.css'
+		),
 		'scripts' => array(
-			'starrating/star-rating/jquery.ratings.js',
+			'starrating/star-rating/jquery.rating.js',
 			'starrating/ext.ratings.stars.js'
 		),
 		'dependencies' => array(),

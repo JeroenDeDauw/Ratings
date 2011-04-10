@@ -26,7 +26,7 @@ final class RatingsStars extends ParserHook {
 	/**
 	 * No LSB in pre-5.3 PHP *sigh*.
 	 * This is to be refactored as soon as php >=5.3 becomes acceptable.
-	 */	
+	 */
 	public static function staticInit( Parser &$parser ) {
 		$className = __CLASS__;
 		$instance = new $className();
@@ -105,8 +105,30 @@ final class RatingsStars extends ParserHook {
 			$parameters['page'] = Title::newFromText( $parameters['page'] );
 		}
 		
+		$inputs = array();
+		
+		for ( $i = 0; $i < 5; $i++ ) {
+			$inputs[] = Html::element(
+				'input',
+				array(
+					'class' => 'starrating',
+					'type' => 'radio',
+					'name' => str_replace( ' ', '_', $parameters['page']->getText() ) . '_' . $parameters['tag'],
+					'value' => $i,
+					'page' => $parameters['page']->getText(),
+					'tag' => $parameters['tag']
+				)
+			);
+		}
+		
+		return Html::rawElement(
+			'div',
+			array( 'class' => 'Clear' ),
+			implode( '', $inputs )
+		);
+		
 		// TODO
-		return wfMsgExt( 'ratings-stars-current-score', 'parsemag', '4/2', 42 );
+		//return wfMsgExt( 'ratings-stars-current-score', 'parsemag', '4/2', 42 );
 	}
 	
 	/**
@@ -141,7 +163,12 @@ final class RatingsStars extends ParserHook {
 			);
 			
 			$this->parser->getOutput()->addHeadItem(
-				Html::linkedScript( $egRatingsScriptPath . '/ext.rattings.stars.js' ),
+				Html::linkedScript( $egRatingsScriptPath . '/starrating/star-rating/jquery.rating.js' ),
+				'ext.ratings.stars.jquery'
+			);			
+			
+			$this->parser->getOutput()->addHeadItem(
+				Html::linkedScript( $egRatingsScriptPath . '/starrating/ext.rattings.stars.js' ),
 				'ext.ratings.stars'
 			);
 		}		
