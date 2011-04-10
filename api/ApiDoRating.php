@@ -3,15 +3,15 @@
 /**
  * API module to rate properties of pages.
  *
- * @since 1.1
+ * @since 0.1
  *
- * @file ApiReaderFeedback.php
- * @ingroup ReaderFeedback
+ * @file ApiDoRating.php
+ * @ingroup Ratings
  *
  * @licence GNU GPL v3 or later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class ApiReaderFeedback extends ApiBase {
+class ApiDoRating extends ApiBase {
 	
 	public function __construct( $main, $action ) {
 		parent::__construct( $main, $action );
@@ -39,11 +39,7 @@ class ApiReaderFeedback extends ApiBase {
 			$this->dieUsageMsg( array( 'notanarticle' ) );
 		}
 		
-		$revId = array_key_exists( 'revid', $params ) ? $params['revid'] : $page->getLatestRevID();
-		
-		if ( ReaderFeedbackPage::userAlreadyVoted( $page, $revId ) ) {
-			$this->dieUsageMsg( array( 'readerfeedback-alreadyvoted' ) );
-		}
+		// TODO: Check if the user already voted
 		
 		$this->getResult()->addValue(
 			null,
@@ -67,24 +63,7 @@ class ApiReaderFeedback extends ApiBase {
 		global $wgUser;
 		
 		$dbw = wfGetDB( DB_MASTER );
-		$ip = wfGetIP();
 		
-		$tags = ReaderFeedback::getFeedbackTags();
-		
-		$tags[$tagName] = $value;
-		
-		$dbw->insert(
-			'reader_feedback',
-			array( 
-				'rfb_rev_id'    => $revId,
-				'rfb_user'      => $wgUser->getId(),
-				'rfb_ip'        => $ip,
-				'rfb_timestamp' => $dbw->timestamp( wfTimestampNow() ),
-				'rfb_ratings'   => ReaderFeedbackPage::flattenRatings( $tags )
-			),
-			__METHOD__,
-			'IGNORE'
-		);
 		
 		
 	}
@@ -135,7 +114,7 @@ class ApiReaderFeedback extends ApiBase {
 
 	protected function getExamples() {
 		return array(
-			'api.php?action=readerfeedback&pagename=User:Jeroen_De_Dauw&tag=awesomeness&value=9001&token=ABC012',
+			'api.php?action=dorating&pagename=User:Jeroen_De_Dauw&tag=awesomeness&value=9001&token=ABC012',
 		);
 	}
 	

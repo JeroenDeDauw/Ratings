@@ -24,7 +24,7 @@ $messages['en'] = array(
 	'ratings-par-tag' => 'Tha rating tag. The tag indicates what "property" of the page gets rated.',
 	'ratings-par-showdisabled' => 'Show ratings when the user can not vote (in read-only mode).',
 
-	'ratings-stars-current-score' => 'Current user rating: $1 ($2 {{PLURAL:$2|ratings|rating}})',
+	'ratings-stars-current-score' => 'Current user rating: $1 ($2 {{PLURAL:$2|rating|ratings}})',
 );
 
 /** Message documentation (Message documentation)
