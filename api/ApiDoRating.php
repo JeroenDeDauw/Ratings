@@ -21,7 +21,7 @@ class ApiDoRating extends ApiBase {
 		$params = $this->extractRequestParams();
 		
 		global $wgUser;
-		if ( !$wgUser->isAllowed( 'feedback' ) || $wgUser->isBlocked() 
+		if ( !$wgUser->isAllowed( 'rate' ) || $wgUser->isBlocked() 
 			|| !array_key_exists( 'token', $params ) || !$wgUser->matchEditToken( $params['token'] ) ) {
 			$this->dieUsageMsg( array( 'badaccess-groups' ) );
 		}		

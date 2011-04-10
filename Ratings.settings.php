@@ -21,3 +21,6 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 
 # When a user is not allowed to rate, show the rating stars (disabled) or not?.
 $egRatingsShowWhenDisabled = true;
+
+# Users that can rate.
+$wgGroupPermissions['*']['rate'] = true;
