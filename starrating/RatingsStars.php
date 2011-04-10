@@ -60,6 +60,7 @@ final class RatingsStars extends ParserHook {
 		
 		$params['page'] = new Parameter( 'page' );
 		$params['page']->setDescription( wfMsg( 'ratings-par-page' ) );
+		$params['page']->setDefault( false, false );
 		
 		$params['tag'] = new Parameter( 'tag' );
 		$params['tag']->setDescription( wfMsg( 'ratings-par-tag' ) );		
@@ -94,7 +95,18 @@ final class RatingsStars extends ParserHook {
 	 * @return string
 	 */
 	public function render( array $parameters ) {
+		$this->loadJs();
+		
+		if ( $parameters['page'] === false ) {
+			global $wgTitle;
+			$parameters['page'] = $wgTitle; 
+		}
+		else {
+			$parameters['page'] = Title::newFromText( $parameters['page'] );
+		}
+		
 		// TODO
+		return wfMsgExt( 'ratings-stars-current-score', 'parsemag', '4/2', 42 );
 	}
 	
 	/**
