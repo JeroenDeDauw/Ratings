@@ -39,34 +39,70 @@ class ApiDoRating extends ApiBase {
 			$this->dieUsageMsg( array( 'notanarticle' ) );
 		}
 		
-		// TODO: Check if the user already voted
+		if ( $this->userAlreadyVoted( $page, $params['tags'], $wgUser ) ) {
+			$result = $this->ipdateRating( $page, $params['tags'], $params['value'], $wgUser );
+		}
+		else {
+			$result = $this->insertRating( $page, $params['tags'], $params['value'], $wgUser );
+		}
 		
 		$this->getResult()->addValue(
 			null,
 			null,
-			$this->setRating( $page, $params['tags'], $params['value'], $revId )
+			$result
 		);
 	}
 	
 	/**
 	 * 
 	 * 
-	 * @since 1.1
+	 * @since 0.1
+	 * 
+	 * @param Title $page
+	 * @param string $tagName
+	 * @param User $user
+	 * 
+	 * @return boolean
+	 */
+	protected function userAlreadyVoted( Title $page, $tagName, User $user ) {
+		
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @since 0.1
 	 * 
 	 * @param Title $page
 	 * @param string $tagName
 	 * @param integer $value
+	 * @param User $user
 	 * 
 	 * @return
 	 */
-	protected function setRating( Title $page, $tagName, $value, $revId ) {
-		global $wgUser;
+	protected function insertRating( Title $page, $tagName, $value, User $user ) {
+		// TODO: 
 		
 		$dbw = wfGetDB( DB_MASTER );
-		
-		
-		
 	}
+	
+	/**
+	 * 
+	 * 
+	 * @since 0.1
+	 * 
+	 * @param Title $page
+	 * @param string $tagName
+	 * @param integer $value
+	 * @param User $user
+	 * 
+	 * @return
+	 */
+	protected function updateRating( Title $page, $tagName, $value, User $user ) {
+		// TODO: 
+		
+		$dbw = wfGetDB( DB_MASTER );
+	}	
 	
 	public function getAllowedParams() {
 		return array(
