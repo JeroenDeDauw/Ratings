@@ -39,11 +39,14 @@ class ApiDoRating extends ApiBase {
 			$this->dieUsageMsg( array( 'notanarticle' ) );
 		}
 		
-		if ( $this->userAlreadyVoted( $page, $params['tags'], $wgUser ) ) {
-			$result = $this->ipdateRating( $page, $params['tags'], $params['value'], $wgUser );
+		$tagId = $this->getTagId( $params['tags'] );
+		$voteId = $this->userAlreadyVoted( $page, $tagId, $wgUser );
+		
+		if ( $voteId === false ) {
+			$result = $this->insertRating( $page, $tagId, $params['value'], $wgUser );
 		}
 		else {
-			$result = $this->insertRating( $page, $params['tags'], $params['value'], $wgUser );
+			$result = $this->updateRating( $voteId, $params['value'] );
 		}
 		
 		$this->getResult()->addValue(
@@ -54,54 +57,129 @@ class ApiDoRating extends ApiBase {
 	}
 	
 	/**
+	 * Get the ID for the current tag. 
+	 * Makes sure the tag exists by creating it if it doesn't yet.
 	 * 
+	 * @since 0.1
+	 * 
+	 * @param string $tagName
+	 * 
+	 * @return integer
+	 */
+	protected function getTagId( $tagName ) {
+		$dbr = wfGetDB( DB_SLAVE );
+		
+		$prop = $dbr->selectRow(
+			'votes_props',
+			array( 'prop_id' ),
+			array(
+				'prop_name' => $tagName
+			)
+		);
+		
+		if ( $prop->prop_id ) {
+			return $prop->prop_id;
+		}
+		else {
+			$this->createTag( $tagName );
+			return $this->getTagId( $tagName );
+		}
+	}
+	
+	/**
+	 * Insers a new tag.
+	 * 
+	 * @since 0.1
+	 * 
+	 * @param string $tagName
+	 */
+	protected function createTag( $tagName ) {
+		$dbw = wfGetDB( DB_MASTER );
+		
+		$dbw->insert(
+			'vote_props',
+			array( 'prop_name' => $tagName )
+		);
+	}
+	
+	/**
+	 * Returns the id of the users vote for the property on this page or
+	 * false when there is no such vote yet.
 	 * 
 	 * @since 0.1
 	 * 
 	 * @param Title $page
-	 * @param string $tagName
+	 * @param integer $tagId
+	 * @param User $user
+	 * 
+	 * @return false or intger
+	 */
+	protected function userAlreadyVoted( Title $page, $tagId, User $user ) {
+		$dbr = wfGetDB( DB_SLAVE );
+		
+		$vote = $dbr->selectRow(
+			'votes',
+			array( 'vote_id' ),
+			array(
+				'vote_user_id' => $user->getId(),
+				'vote_page_id' => $page->getArticleID(),
+				'vote_tag_id' => $tagId
+			)
+		);
+		
+		return $vote ? $vote->vote_id : false;
+	}
+	
+	/**
+	 * Insers a new vote.
+	 * 
+	 * @since 0.1
+	 * 
+	 * @param Title $page
+	 * @param integer $tagId
+	 * @param integer $value
 	 * @param User $user
 	 * 
 	 * @return boolean
 	 */
-	protected function userAlreadyVoted( Title $page, $tagName, User $user ) {
+	protected function insertRating( Title $page, $tagId, $value, User $user ) {
+		$dbw = wfGetDB( DB_MASTER );
 		
+		return $dbw->insert(
+			'votes',
+			array(
+				'vote_user_id' => $user->getId(),
+				'vote_page_id' => $page->getArticleID(),
+				'vote_tag_id' => $tagId,
+				'vote_value' => $value,
+				'vote_time' => $dbw->timestamp()
+			)
+		);
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @since 0.1
-	 * 
-	 * @param Title $page
-	 * @param string $tagName
-	 * @param integer $value
-	 * @param User $user
-	 * 
-	 * @return
-	 */
-	protected function insertRating( Title $page, $tagName, $value, User $user ) {
-		// TODO: 
-		
-		$dbw = wfGetDB( DB_MASTER );
-	}
-	
-	/**
-	 * 
+	 * Updates an existing vote with a new value. 
 	 * 
 	 * @since 0.1
 	 * 
-	 * @param Title $page
-	 * @param string $tagName
+	 * @param integer $voteId
 	 * @param integer $value
-	 * @param User $user
 	 * 
-	 * @return
+	 * @return boolean
 	 */
-	protected function updateRating( Title $page, $tagName, $value, User $user ) {
-		// TODO: 
-		
+	protected function updateRating( $voteId, $value ) {
 		$dbw = wfGetDB( DB_MASTER );
+		
+		return $dbw->update(
+			'votes',
+			array(
+				'vote_value' => $value,
+				'vote_time' => $dbw->timestamp()
+			),
+			array(
+				'vote_id' => $voteId,
+			)
+		);		
 	}	
 	
 	public function getAllowedParams() {
