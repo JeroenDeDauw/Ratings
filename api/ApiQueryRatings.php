@@ -41,7 +41,7 @@ class ApiQueryRatings extends ApiQueryBase {
 		$this->addTables( array( 'votes', 'vote_props' ) );
 		
 		$this->addJoinConds( array(
-			'votes' => array( 'LEFT JOIN', array( 'vote_prop_id=prop_id' ) ),
+			'vote_props' => array( 'LEFT JOIN', array( 'vote_prop_id=prop_id' ) ),
 		) );
 		
 		$this->addFields( array(
@@ -52,8 +52,8 @@ class ApiQueryRatings extends ApiQueryBase {
 		) );
 		
 		$this->addWhere( array(
-			'page_id' => $page->getArticleID(),
-			'user_id' => $parameters['userid']
+			'vote_page_id' => $page->getArticleID(),
+			'vote_user_id' => $params['userid']
 		) );
 
 		if ( !is_null( $params['continue'] ) ) {
