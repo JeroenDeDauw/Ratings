@@ -15,7 +15,7 @@
  */
 class ApiQueryRatings extends ApiQueryBase {
 	public function __construct( $main, $action ) {
-		parent :: __construct( $main, $action, 'rt' );
+		parent :: __construct( $main, $action, 'qr' );
 	}
 
 	/**
@@ -25,60 +25,61 @@ class ApiQueryRatings extends ApiQueryBase {
 		// Get the requests parameters.
 		$params = $this->extractRequestParams();
 		
-		if ( !isset( $params['language'] ) ) {
-			$this->dieUsageMsg( array( 'missingparam', 'language' ) );
-		}			 (the current total and avarage)
+		// In MW 1.17 and above ApiBase::PARAM_REQUIRED can be used, this is for b/c with 1.16.
+		foreach ( array( 'page', 'userid' ) as $requiredParam ) {
+			if ( !isset( $params[$requiredParam] ) ) {
+				$this->dieUsageMsg( array( 'missingparam', $requiredParam ) );
+			}
+		}
 		
-		$this->addTables( 'live_translate' );
+		$page = Title::newFromText( $params['page'] );
+		
+		if ( !$page->exists() ) {
+			$this->dieUsageMsg( array( 'notanarticle' ) );
+		}		
+		
+		$this->addTables( array( 'votes', 'vote_props' ) );
+		
+		$this->addJoinConds( array(
+			'votes' => array( 'LEFT JOIN', array( 'vote_prop_id=prop_id' ) ),
+		) );
 		
 		$this->addFields( array(
-			'word_id',
-			'word_translation'
+			'vote_id',
+			'vote_value',
+			'vote_time',
+			'prop_name'
 		) );
 		
 		$this->addWhere( array(
-			'word_language' => $params['language']
+			'page_id' => $page->getArticleID(),
+			'user_id' => $parameters['userid']
 		) );
 
 		if ( !is_null( $params['continue'] ) ) {
 			$dbr = wfGetDB( DB_SLAVE );
-			$this->addWhere( 'word_id >= ' . $dbr->addQuotes( $params['continue'] ) );			
+			$this->addWhere( 'vote_id >= ' . $dbr->addQuotes( $params['continue'] ) );			
 		}
 		
 		$this->addOption( 'LIMIT', $params['limit'] + 1 );
-		$this->addOption( 'ORDER BY', 'word_id ASC' );		
+		$this->addOption( 'ORDER BY', 'vote_id ASC' );		
 		
-		$words = $this->select( __METHOD__ );
-		$specialWords = array();
+		$ratings = $this->select( __METHOD__ );
 		$count = 0;
 		
-		while ( $word = $words->fetchObject() ) {
+		while ( $rating = $ratings->fetchObject() ) {
 			if ( ++$count > $params['limit'] ) {
 				// We've reached the one extra which shows that
 				// there are additional pages to be had. Stop here...
-				$this->setContinueEnumParameter( 'continue', $word->word_id );
+				$this->setContinueEnumParameter( 'continue', $rating->vote_id );
 				break;
 			}
-
-			$specialWords[] = $word->word_translation;
-		}
-		
-		$toggeledSpecials = array();
-		
-		foreach ( $specialWords as $word ) {
-			$toggledWord = LiveTranslateFunctions::getToggledCase( $word );
 			
-			if ( $toggledWord ) {
-				$toggeledSpecials[] = $toggledWord;
-			}
-		}
-		
-		foreach ( array_unique( array_merge( $specialWords, $toggeledSpecials ) ) as $word ) {
 			$this->getResult()->addValue(
-				'words',
-				null,
-				$word
-			);			
+				'userratings',
+				$rating->prop_name,
+				$rating->vote_value
+			);	
 		}
 	}
 	
@@ -91,6 +92,10 @@ class ApiQueryRatings extends ApiQueryBase {
 			'page' => array(
 				ApiBase::PARAM_TYPE => 'string',
 				//ApiBase::PARAM_REQUIRED => true,
+			),
+			'userid' => array(
+				ApiBase::PARAM_TYPE => 'integer',
+				//ApiBase::PARAM_REQUIRED => true,			
 			),
 			'limit' => array(
 				ApiBase :: PARAM_DFLT => 500,
@@ -129,7 +134,8 @@ class ApiQueryRatings extends ApiQueryBase {
 	 */
 	public function getPossibleErrors() {
 		return array_merge( parent::getPossibleErrors(), array(
-			array( 'missingparam', 'language' ),
+			array( 'missingparam', 'page' ), 
+			array( 'missingparam', 'userid' )
 		) );
 	}	
 	
@@ -139,7 +145,7 @@ class ApiQueryRatings extends ApiQueryBase {
 	 */
 	protected function getExamples() {
 		return array (
-			'api.php?action=query&list=ratings&rt',
+			'api.php?action=query&list=ratings&qrpage=Main_page&qruserid=42',
 		);
 	}
 

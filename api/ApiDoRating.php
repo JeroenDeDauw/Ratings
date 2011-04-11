@@ -33,7 +33,7 @@ class ApiDoRating extends ApiBase {
 			}
 		}
 		
-		$page = Title::newFromText( $params['pagename'], NS_MAIN );
+		$page = Title::newFromText( $params['pagename'] );
 		
 		if ( !$page->exists() ) {
 			$this->dieUsageMsg( array( 'notanarticle' ) );

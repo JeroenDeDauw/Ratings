@@ -2,12 +2,13 @@
 
 -- Special translations table.
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/votes (
-  user_id                 INT(10) unsigned   NOT NULL,
-  page_id                 INT(10) unsigned   NOT NULL,
-  prop_id                 INT(5) unsigned    NOT NULL,
+  vote_id                 INT(10) unsigned   NOT NULL auto_increment PRIMARY KEY,
+  vote_user_id            INT(10) unsigned   NOT NULL,
+  vote_page_id            INT(10) unsigned   NOT NULL,
+  vote_prop_id            INT(5) unsigned    NOT NULL,
   vote_value              INT(4) unsigned    NOT NULL,
   vote_time               CHAR(14) binary    NOT NULL default '',
-  PRIMARY KEY  ('user_id','page_id','prop_id')
+  UNIQUE KEY  ('user_id','page_id','prop_id')
 ) /*$wgDBTableOptions*/; 
 
 -- Table to keep track of translation memories for the special words.

@@ -66,6 +66,10 @@ $wgAutoloadClasses['RatingsStars'] = dirname( __FILE__ ) . '/starrating/RatingsS
 $wgHooks['ParserFirstCallInit'][] = 'RatingsStars::staticInit';
 $wgHooks['LanguageGetMagic'][] = 'RatingsStars::staticMagic';
 
+$wgAutoloadClasses['RatingsHooks'] = dirname( __FILE__ ) . '/Ratings.hooks.php';
+
+$wgHooks['LoadExtensionSchemaUpdates'][] = 'RatingsHooks::onSchemaUpdate';
+
 $egRatingsStarsJSMessages = array(
 );
 
