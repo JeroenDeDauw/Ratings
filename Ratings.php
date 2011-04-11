@@ -55,8 +55,8 @@ $egRatingsScriptPath = $wgExtensionAssetsPath === false ? $wgScriptPath . '/exte
 
 $wgExtensionMessagesFiles['Ratings'] = dirname( __FILE__ ) . '/Ratings.i18n.php';
 
-$wgAutoloadClasses['ApiDoRating'] = dirname( __FILE__ ) . '/api/ApiApiDoRating.php';
-$wgAutoloadClasses['ApiQueryRatings'] = dirname( __FILE__ ) . '/api/ApiApiQueryRatings.php';
+$wgAutoloadClasses['ApiDoRating'] = dirname( __FILE__ ) . '/api/ApiDoRating.php';
+$wgAutoloadClasses['ApiQueryRatings'] = dirname( __FILE__ ) . '/api/ApiQueryRatings.php';
 
 $wgAPIModules['dorating'] = 'ApiDoRating';
 $wgAPIListModules['ratings'] = 'ApiQueryRatings';
