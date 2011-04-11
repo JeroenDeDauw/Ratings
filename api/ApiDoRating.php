@@ -21,10 +21,10 @@ class ApiDoRating extends ApiBase {
 		$params = $this->extractRequestParams();
 		
 		global $wgUser;
-		if ( !$wgUser->isAllowed( 'rate' ) || $wgUser->isBlocked() 
+		/*if ( !$wgUser->isAllowed( 'rate' ) || $wgUser->isBlocked() 
 			|| !array_key_exists( 'token', $params ) || !$wgUser->matchEditToken( $params['token'] ) ) {
 			$this->dieUsageMsg( array( 'badaccess-groups' ) );
-		}		
+		}*/
 		
 		// In MW 1.17 and above ApiBase::PARAM_REQUIRED can be used, this is for b/c with 1.16.
 		foreach ( array( 'tag', 'pagename', 'value' ) as $requiredParam ) {
@@ -39,7 +39,7 @@ class ApiDoRating extends ApiBase {
 			$this->dieUsageMsg( array( 'notanarticle' ) );
 		}
 		
-		$tagId = $this->getTagId( $params['tags'] );
+		$tagId = $this->getTagId( $params['tag'] );
 		$voteId = $this->userAlreadyVoted( $page, $tagId, $wgUser );
 		
 		if ( $voteId === false ) {
@@ -50,8 +50,8 @@ class ApiDoRating extends ApiBase {
 		}
 		
 		$this->getResult()->addValue(
-			null,
-			null,
+			'rating',
+			'success',
 			$result
 		);
 	}
@@ -70,13 +70,13 @@ class ApiDoRating extends ApiBase {
 		$dbr = wfGetDB( DB_SLAVE );
 		
 		$prop = $dbr->selectRow(
-			'votes_props',
+			'vote_props',
 			array( 'prop_id' ),
 			array(
 				'prop_name' => $tagName
 			)
 		);
-		
+
 		if ( $prop->prop_id ) {
 			return $prop->prop_id;
 		}
@@ -123,7 +123,7 @@ class ApiDoRating extends ApiBase {
 			array(
 				'vote_user_id' => $user->getId(),
 				'vote_page_id' => $page->getArticleID(),
-				'vote_tag_id' => $tagId
+				'vote_prop_id' => $tagId
 			)
 		);
 		
@@ -150,7 +150,7 @@ class ApiDoRating extends ApiBase {
 			array(
 				'vote_user_id' => $user->getId(),
 				'vote_page_id' => $page->getArticleID(),
-				'vote_tag_id' => $tagId,
+				'vote_prop_id' => $tagId,
 				'vote_value' => $value,
 				'vote_time' => $dbw->timestamp()
 			)
