@@ -39,11 +39,11 @@ class ApiDoRating extends ApiBase {
 			$this->dieUsageMsg( array( 'notanarticle' ) );
 		}
 		
-		$userText = $wgUser->isLoggedIn() ? $wgUser->getId() : wfGetIp();
-		
+		$userText = $wgUser->getName();
+
 		$tagId = $this->getTagId( $params['tag'] );
 		$voteId = $this->userAlreadyVoted( $page, $tagId, $userText );
-		
+
 		if ( $voteId === false ) {
 			$result = $this->insertRating( $page, $tagId, $params['value'], $userText );
 		}
