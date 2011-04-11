@@ -3,14 +3,14 @@
 -- Special translations table.
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/votes (
   vote_id                 INT(10) unsigned   NOT NULL auto_increment PRIMARY KEY,
-  vote_user_id            INT(10) unsigned   NOT NULL,
+  vote_user_text          INT(10) unsigned   NOT NULL,
   vote_page_id            INT(10) unsigned   NOT NULL,
   vote_prop_id            INT(5) unsigned    NOT NULL,
   vote_value              INT(4) unsigned    NOT NULL,
   vote_time               CHAR(14) binary    NOT NULL default ''
 ) /*$wgDBTableOptions*/; 
 
-CREATE UNIQUE INDEX vote ON /*$wgDBprefix*/votes (vote_user_id, vote_page_id, vote_prop_id);
+CREATE UNIQUE INDEX vote ON /*$wgDBprefix*/votes (vote_user_text, vote_page_id, vote_prop_id);
 
 -- Table to keep track of translation memories for the special words.
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/vote_props (

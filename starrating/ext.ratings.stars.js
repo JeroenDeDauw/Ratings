@@ -11,7 +11,7 @@
 	$( '.starrating' ).rating({
 		callback: function( value, link ){
 			var self = $(this);
-			alert( self.attr( 'page' ), self.attr( 'tag' ), value );
+			submitRating( self.attr( 'page' ), self.attr( 'tag' ), value );
 		}
 	});
 	
@@ -30,7 +30,15 @@
 				'value': value
 			},
 			function( data ) {
-				alert( data )
+				if ( data.error && data.error.info ) {
+					alert( data.error.info );
+				}				
+				else if ( data.result.success ) {
+					// TODO
+				}
+				else {
+					alert( 'Failed to submit rating' ) // TODO
+				}
 			},
 			'json'
 		);

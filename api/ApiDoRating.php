@@ -39,18 +39,20 @@ class ApiDoRating extends ApiBase {
 			$this->dieUsageMsg( array( 'notanarticle' ) );
 		}
 		
+		$userText = $wgUser->isLoggedIn() ? $wgUser->getId() : wfGetIp();
+		
 		$tagId = $this->getTagId( $params['tag'] );
-		$voteId = $this->userAlreadyVoted( $page, $tagId, $wgUser );
+		$voteId = $this->userAlreadyVoted( $page, $tagId, $userText );
 		
 		if ( $voteId === false ) {
-			$result = $this->insertRating( $page, $tagId, $params['value'], $wgUser );
+			$result = $this->insertRating( $page, $tagId, $params['value'], $userText );
 		}
 		else {
 			$result = $this->updateRating( $voteId, $params['value'] );
 		}
 		
 		$this->getResult()->addValue(
-			'rating',
+			'result',
 			'success',
 			$result
 		);
@@ -77,7 +79,7 @@ class ApiDoRating extends ApiBase {
 			)
 		);
 
-		if ( $prop->prop_id ) {
+		if ( $prop ) {
 			return $prop->prop_id;
 		}
 		else {
@@ -110,18 +112,18 @@ class ApiDoRating extends ApiBase {
 	 * 
 	 * @param Title $page
 	 * @param integer $tagId
-	 * @param User $user
+	 * @param string $userText
 	 * 
 	 * @return false or intger
 	 */
-	protected function userAlreadyVoted( Title $page, $tagId, User $user ) {
+	protected function userAlreadyVoted( Title $page, $tagId, $userText ) {
 		$dbr = wfGetDB( DB_SLAVE );
 		
 		$vote = $dbr->selectRow(
 			'votes',
 			array( 'vote_id' ),
 			array(
-				'vote_user_id' => $user->getId(),
+				'vote_user_text' => $userText,
 				'vote_page_id' => $page->getArticleID(),
 				'vote_prop_id' => $tagId
 			)
@@ -138,17 +140,17 @@ class ApiDoRating extends ApiBase {
 	 * @param Title $page
 	 * @param integer $tagId
 	 * @param integer $value
-	 * @param User $user
+	 * @param string $userText
 	 * 
 	 * @return boolean
 	 */
-	protected function insertRating( Title $page, $tagId, $value, User $user ) {
+	protected function insertRating( Title $page, $tagId, $value, $userText ) {
 		$dbw = wfGetDB( DB_MASTER );
 		
 		return $dbw->insert(
 			'votes',
 			array(
-				'vote_user_id' => $user->getId(),
+				'vote_user_text' => $userText,
 				'vote_page_id' => $page->getArticleID(),
 				'vote_prop_id' => $tagId,
 				'vote_value' => $value,
