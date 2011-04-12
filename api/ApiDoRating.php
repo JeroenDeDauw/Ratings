@@ -21,10 +21,11 @@ class ApiDoRating extends ApiBase {
 		$params = $this->extractRequestParams();
 		
 		global $wgUser;
-		/*if ( !$wgUser->isAllowed( 'rate' ) || $wgUser->isBlocked() 
-			|| !array_key_exists( 'token', $params ) || !$wgUser->matchEditToken( $params['token'] ) ) {
+
+		if ( !$wgUser->isAllowed( 'rate' ) || $wgUser->isBlocked() 
+			/*|| !array_key_exists( 'token', $params ) || !$wgUser->matchEditToken( $params['token'] )*/ ) {
 			$this->dieUsageMsg( array( 'badaccess-groups' ) );
-		}*/
+		}
 		
 		// In MW 1.17 and above ApiBase::PARAM_REQUIRED can be used, this is for b/c with 1.16.
 		foreach ( array( 'tag', 'pagename', 'value' ) as $requiredParam ) {
