@@ -15,6 +15,12 @@
 		}
 	});
 	
+	/**
+	 * Self executing function to setup the rating stars on the page.
+	 * This is done by finding all tags for all pages that should
+	 * be displayed and then gathering this data via the API to show
+	 * the current vote values.
+	 */
 	(function initGetRatings() {
 		var ratings = {};
 		
@@ -35,6 +41,13 @@
 		}
 	})();
 	
+	/**
+	 * Obtain the vote values for a set of tags of a single page,
+	 * and then find and update the corresponding rating stars.
+	 * 
+	 * @param {string} page
+	 * @param {Array} tags
+	 */
 	function getRatingsForPage( page, tags ) {
 		$.getJSON(
 			wgScriptPath + '/api.php',
@@ -51,6 +64,13 @@
 		); 		
 	}
 	
+	/**
+	 * Submit a rating.
+	 * 
+	 * @param {string} page
+	 * @param {string} tag
+	 * @param {integer} value
+	 */
 	function submitRating( page, tag, value ) {
 		$.post(
 			wgScriptPath + '/api.php',
