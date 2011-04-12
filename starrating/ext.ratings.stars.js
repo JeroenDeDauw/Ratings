@@ -15,8 +15,40 @@
 		}
 	});
 	
-	function getRating() {
+	(function initGetRatings() {
+		var ratings = {};
 		
+		$.each($(".starrating"), function(i,v) {
+			var self = $(this);
+			
+			if ( typeof self.attr( 'page' ) != 'undefined' ) {
+				if ( !ratings[self.attr( 'page' )] ) {
+					ratings[self.attr( 'page' )] = [];
+				}
+				
+				ratings[self.attr( 'page' )].push( self.attr( 'tag' ) );				
+			}
+		});
+		
+		for ( i in ratings ) {
+			getRatingsForPage( i, $.unique( ratings[i] ) );
+		}
+	})();
+	
+	function getRatingsForPage( page, tags ) {
+		$.getJSON(
+			wgScriptPath + '/api.php',
+			{
+				'action': 'query',
+				'format': 'json',
+				'list': 'ratings',
+				'page': page,
+				'tags': tags.join( '|' )
+			},
+			function( data ) {
+				// TODO
+			}
+		); 		
 	}
 	
 	function submitRating( page, tag, value ) {
