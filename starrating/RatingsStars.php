@@ -125,7 +125,7 @@ final class RatingsStars extends ParserHook {
 			$message = htmlspecialchars( wfMsgExt(
 				'ratings-stars-current-score',
 				'parsemag',
-				$tagData['avarage'],
+				$tagData['avarage'] + 1, // Internal representatation is 0 based, don't confuse poor users :)
 				$tagData['count']
 			) );
 			

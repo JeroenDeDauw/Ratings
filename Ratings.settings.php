@@ -24,3 +24,6 @@ $egRatingsShowWhenDisabled = true;
 
 # Users that can rate.
 $wgGroupPermissions['*']['rate'] = true;
+
+# Set to true to invalidate the cache of pages when a vote for them is made.
+$egRatingsInvalidateOnVote = false;

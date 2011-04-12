@@ -51,6 +51,10 @@ class ApiDoRating extends ApiBase {
 			$result = $this->updateRating( $voteId, $params['value'] );
 		}
 		
+		if ( $result && $GLOBALS['egRatingsInvalidateOnVote'] ) {
+			$page->invalidateCache();
+		}
+		
 		$this->getResult()->addValue(
 			'result',
 			'success',
