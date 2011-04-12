@@ -55,8 +55,8 @@
 				'action': 'query',
 				'format': 'json',
 				'list': 'ratings',
-				'page': page,
-				'tags': tags.join( '|' )
+				'qrpage': page,
+				'qrtags': tags.join( '|' )
 			},
 			function( data ) {
 				// TODO

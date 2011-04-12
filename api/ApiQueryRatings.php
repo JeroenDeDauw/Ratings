@@ -26,7 +26,7 @@ class ApiQueryRatings extends ApiQueryBase {
 		$params = $this->extractRequestParams();
 		
 		// In MW 1.17 and above ApiBase::PARAM_REQUIRED can be used, this is for b/c with 1.16.
-		foreach ( array( 'page', 'userid' ) as $requiredParam ) {
+		foreach ( array( 'page' ) as $requiredParam ) {
 			if ( !isset( $params[$requiredParam] ) ) {
 				$this->dieUsageMsg( array( 'missingparam', $requiredParam ) );
 			}
@@ -36,7 +36,7 @@ class ApiQueryRatings extends ApiQueryBase {
 		
 		if ( !$page->exists() ) {
 			$this->dieUsageMsg( array( 'notanarticle' ) );
-		}		
+		}
 		
 		$this->addTables( array( 'votes', 'vote_props' ) );
 		
@@ -53,9 +53,9 @@ class ApiQueryRatings extends ApiQueryBase {
 		
 		$this->addWhere( array(
 			'vote_page_id' => $page->getArticleID(),
-			'vote_user_id' => $params['userid']
+			'vote_user_text' => isset( $params['user'] ) ? $params['user'] : $GLOBALS['wgUser']->getName()
 		) );
-
+		
 		if ( !is_null( $params['continue'] ) ) {
 			$dbr = wfGetDB( DB_SLAVE );
 			$this->addWhere( 'vote_id >= ' . $dbr->addQuotes( $params['continue'] ) );			
@@ -66,6 +66,7 @@ class ApiQueryRatings extends ApiQueryBase {
 		
 		$ratings = $this->select( __METHOD__ );
 		$count = 0;
+		$limitTags = isset( $params['tags'] );
 		
 		while ( $rating = $ratings->fetchObject() ) {
 			if ( ++$count > $params['limit'] ) {
@@ -75,11 +76,13 @@ class ApiQueryRatings extends ApiQueryBase {
 				break;
 			}
 			
-			$this->getResult()->addValue(
-				'userratings',
-				$rating->prop_name,
-				$rating->vote_value
-			);	
+			if ( !$limitTags || in_array( $rating->prop_name, $params['tags'] ) ) {
+				$this->getResult()->addValue(
+					'userratings',
+					$rating->prop_name,
+					(int)$rating->vote_value
+				);				
+			}
 		}
 	}
 	
@@ -93,9 +96,8 @@ class ApiQueryRatings extends ApiQueryBase {
 				ApiBase::PARAM_TYPE => 'string',
 				//ApiBase::PARAM_REQUIRED => true,
 			),
-			'userid' => array(
-				ApiBase::PARAM_TYPE => 'integer',
-				//ApiBase::PARAM_REQUIRED => true,			
+			'user' => array(
+				ApiBase::PARAM_TYPE => 'string',
 			),
 			'limit' => array(
 				ApiBase :: PARAM_DFLT => 500,
@@ -105,6 +107,10 @@ class ApiQueryRatings extends ApiQueryBase {
 				ApiBase :: PARAM_MAX2 => ApiBase :: LIMIT_BIG2
 			),			
 			'continue' => null,
+			'tags' => array(
+				ApiBase::PARAM_TYPE => 'string',
+				ApiBase::PARAM_ISMULTI => true,
+			),			
 		);
 	}
 
@@ -114,9 +120,11 @@ class ApiQueryRatings extends ApiQueryBase {
 	 */
 	public function getParamDescription() {
 		return array (
-			'language' => 'The language for which to return special words',
+			'page' => 'The page to get rating values for',
+			'user' => 'The name of the user to get rating values for',
 			'continue' => 'Offset number from where to continue the query',
 			'limit'   => 'Max amount of words to return',
+			'tags' => 'Can be used to limit the tags for which values are returned'
 		);
 	}
 
@@ -135,7 +143,7 @@ class ApiQueryRatings extends ApiQueryBase {
 	public function getPossibleErrors() {
 		return array_merge( parent::getPossibleErrors(), array(
 			array( 'missingparam', 'page' ), 
-			array( 'missingparam', 'userid' )
+			array( 'missingparam', 'user' )
 		) );
 	}	
 	
@@ -145,7 +153,7 @@ class ApiQueryRatings extends ApiQueryBase {
 	 */
 	protected function getExamples() {
 		return array (
-			'api.php?action=query&list=ratings&qrpage=Main_page&qruserid=42',
+			'api.php?action=query&list=ratings&qrpage=Main_page&qruser=0:0:0:0:0:0:0:1',
 		);
 	}
 
