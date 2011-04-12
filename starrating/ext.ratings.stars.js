@@ -59,9 +59,32 @@
 				'qrtags': tags.join( '|' )
 			},
 			function( data ) {
-				// TODO
+				if ( data.userratings ) {
+					initRatingElementsForPage( page, data.userratings );
+				}
+				else {
+					// TODO
+				}
 			}
 		); 		
+	}
+	
+	/**
+	 * Loop over all rating elements for the page and set their value when available.
+	 * 
+	 * @param {string} page
+	 * @param {Array} tagValues
+	 */	
+	function initRatingElementsForPage( page, tagValues ) {
+		$.each($(".starrating"), function(i,v) {
+			var self = $(this);
+			
+			if ( typeof self.attr( 'page' ) != 'undefined' && self.attr( 'page' ) == page ) {
+				if ( tagValues[self.attr( 'tag' )] ) {
+					self.rating( 'select', tagValues[self.attr( 'tag' )], false );
+				}
+			}
+		});		
 	}
 	
 	/**
