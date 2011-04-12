@@ -8,12 +8,24 @@
 
 (function($) { $( document ).ready( function() {
 
-	$( '.starrating' ).rating({
-		callback: function( value, link ){
-			var self = $(this);
-			submitRating( self.attr( 'page' ), self.attr( 'tag' ), value );
+	(function setupRatingElements() {
+		var groups = [];
+		
+		$.each($(".starrating"), function(i,v) {
+			groups.push( $(this).attr( 'name' ) );
+		});
+		
+		groups = $.unique( groups );
+		
+		for ( i in groups ) {
+			$( "input[name='" + groups[i] + "']" ).rating({
+				callback: function( value, link ){
+					var self = $(this);
+					submitRating( self.attr( 'page' ), self.attr( 'tag' ), value );
+				},
+			});
 		}
-	});
+	})();
 	
 	/**
 	 * Self executing function to setup the rating stars on the page.
@@ -80,7 +92,7 @@
 			var self = $(this);
 			
 			if ( typeof self.attr( 'page' ) != 'undefined' && self.attr( 'page' ) == page ) {
-				if ( tagValues[self.attr( 'tag' )] ) {
+				if ( typeof tagValues[self.attr( 'tag' )] != 'undefined' ) {
 					self.rating( 'select', tagValues[self.attr( 'tag' )], false );
 				}
 			}

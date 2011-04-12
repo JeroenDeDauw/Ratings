@@ -105,6 +105,8 @@ final class RatingsStars extends ParserHook {
 			$parameters['page'] = Title::newFromText( $parameters['page'] );
 		}
 		
+		static $ratingStarNr = 0; $ratingStarNr++;
+		
 		$inputs = array();
 		
 		for ( $i = 0; $i < 5; $i++ ) {
@@ -113,17 +115,17 @@ final class RatingsStars extends ParserHook {
 				array(
 					'class' => 'starrating',
 					'type' => 'radio',
-					'name' => str_replace( ' ', '_', $parameters['page']->getText() ) . '_' . $parameters['tag'],
+					'name' => 'ratingstars_' . $ratingStarNr,
 					'value' => $i,
 					'page' => $parameters['page']->getText(),
-					'tag' => $parameters['tag']
+					'tag' => $parameters['tag'],
 				)
 			);
 		}
 		
 		return Html::rawElement(
 			'div',
-			array( 'class' => 'Clear' ),
+			array( 'style' => 'display:inline; position:static' ),
 			implode( '', $inputs )
 		);
 		
