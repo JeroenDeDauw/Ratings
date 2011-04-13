@@ -13,8 +13,6 @@
  */
 final class RatingsVoteSummary extends ParserHook {
 	
-	protected static $pageRatings = array();
-	
 	/**
 	 * No LSB in pre-5.3 PHP *sigh*.
 	 * This is to be refactored as soon as php >=5.3 becomes acceptable.
@@ -89,68 +87,8 @@ final class RatingsVoteSummary extends ParserHook {
 	 * @return string
 	 */
 	public function render( array $parameters ) {
-		$this->loadJs();
-		
 		$parameters['page'] = $parameters['page'] === false ? $GLOBALS['wgTitle'] : Title::newFromText( $parameters['page'] ); 
-		
-		static $ratingStarNr = 0; $ratingStarNr++;
-		
-		$inputs = array();
-		
-		for ( $i = 0; $i < 5; $i++ ) {
-			$inputs[] = Html::element(
-				'input',
-				array(
-					'class' => 'starrating',
-					'type' => 'radio',
-					'name' => 'ratingstars_' . $ratingStarNr,
-					'value' => $i,
-					'page' => $parameters['page']->getFullText(),
-					'tag' => $parameters['tag'],
-				)
-			);
-		}
-		
-		if ( true ) {
-			$tagData = $this->getCurrentRating( $parameters['tag'] );
-			
-			$message = htmlspecialchars( wfMsgExt(
-				'ratings-stars-current-score',
-				'parsemag',
-				$tagData['avarage'] + 1, // Internal representatation is 0 based, don't confuse poor users :)
-				$tagData['count']
-			) );
-			
-			array_unshift( $inputs, $message . '<br />' );
-		}
-		
-		return Html::rawElement(
-			'div',
-			array( 'style' => 'display:inline; position:static' ),
-			implode( '', $inputs )
-		);
-	}
-	
-	/**
-	 * Returns the data for the tag in an array, or false is there is no data.
-	 * 
-	 * @param string $tagName
-	 * 
-	 * @return false or array
-	 */
-	protected function getCurrentRating( $tagName ) {
-		$title = $GLOBALS['wgTitle']->getFullText();
-		
-		if ( !array_key_exists( $title, self::$pageRatings ) ) {
-			self::$pageRatings[$title] = array();
-			
-			// The keys are the tag ids, but they are not known here, so change to tag names, which are known.
-			foreach ( Ratings::getPageRatings( $GLOBALS['wgTitle'] ) as $tagId => $tagData ) {
-				self::$pageRatings[$title][$tagData['name']] = array_merge( array( 'id' => $tagId ), $tagData );
-			}
-		}
-		
-		return array_key_exists( $tagName, self::$pageRatings[$title] ) ? self::$pageRatings[$title][$tagName] : false;
+		return htmlspecialchars( Ratings::getRatingSummaryMessage( $parameters['page'], $parameters['tag'] ) );
 	}
 	
 	/**

@@ -120,7 +120,7 @@ final class RatingsStars extends ParserHook {
 		}
 		
 		if ( $parameters['incsummary'] ) {
-			array_unshift( $inputs, '{{#votesummary:page=' . $parameters['page']->getFullText() . '|tag=' . $parameters['tag'] . '}}<br />' );
+			array_unshift( $inputs, htmlspecialchars( Ratings::getRatingSummaryMessage( $parameters['page'], $parameters['tag'] ) ) . '<br />' );
 		}
 		
 		return Html::rawElement(
