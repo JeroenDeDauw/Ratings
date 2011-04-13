@@ -154,7 +154,7 @@ final class RatingsStars extends ParserHook {
 			$this->parser->getOutput()->addModules( 'ext.ratings.stars' );
 		}
 		else {
-			global $egIncWPScriptPath, $wgStylePath, $wgStyleVersion;
+			global $egRatingsScriptPath, $wgStylePath, $wgStyleVersion;
 			
 			$this->addJSLocalisation();
 
@@ -164,12 +164,13 @@ final class RatingsStars extends ParserHook {
 			);
 			
 			$this->parser->getOutput()->addHeadItem(
-				Html::linkedScript( $egRatingsScriptPath . '/starrating/star-rating/jquery.rating.js' ),
+				Html::linkedScript( $egRatingsScriptPath . '/starrating/star-rating/jquery.rating.js' )
+				. Html::linkedStyle( $egRatingsScriptPath . '/starrating/star-rating/jquery.rating.css' ),
 				'ext.ratings.stars.jquery'
 			);			
 			
 			$this->parser->getOutput()->addHeadItem(
-				Html::linkedScript( $egRatingsScriptPath . '/starrating/ext.rattings.stars.js' ),
+				Html::linkedScript( $egRatingsScriptPath . '/starrating/ext.ratings.stars.js' ),
 				'ext.ratings.stars'
 			);
 		}		
