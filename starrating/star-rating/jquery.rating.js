@@ -48,9 +48,9 @@
 		
 		// loop through each matched element
 		this
-		 .not('.star-rating-applied')
+		 	.not('.star-rating-applied')
 			.addClass('star-rating-applied')
-		.each(function(){
+			.each(function(){
 			
 			// Load control parameters / find context / etc
 			var control, input = $(this);
