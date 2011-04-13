@@ -13,15 +13,12 @@
  */
 final class RatingsStars extends ParserHook {
 	
-	protected static $pageRatings = array();
-	
 	/**
 	 * No LSB in pre-5.3 PHP *sigh*.
 	 * This is to be refactored as soon as php >=5.3 becomes acceptable.
 	 */
 	public static function staticMagic( array &$magicWords, $langCode ) {
-		$className = __CLASS__;
-		$instance = new $className();
+		$instance = new self;
 		return $instance->magic( $magicWords, $langCode );
 	}
 	
@@ -30,8 +27,7 @@ final class RatingsStars extends ParserHook {
 	 * This is to be refactored as soon as php >=5.3 becomes acceptable.
 	 */
 	public static function staticInit( Parser &$parser ) {
-		$className = __CLASS__;
-		$instance = new $className();
+		$instance = new self;
 		return $instance->init( $parser );
 	}
 
@@ -56,7 +52,7 @@ final class RatingsStars extends ParserHook {
 	 * @return array
 	 */
 	protected function getParameterInfo( $type ) {
-		global $egRatingsShowWhenDisabled;
+		global $egRatingsShowWhenDisabled, $egRatingsIncSummary;
 		
 		$params = array();
 		
@@ -70,6 +66,10 @@ final class RatingsStars extends ParserHook {
 		$params['showdisabled'] = new Parameter( 'showdisabled', Parameter::TYPE_BOOLEAN );
 		$params['showdisabled']->setDescription( wfMsg( 'ratings-par-showdisabled' ) );			
 		$params['showdisabled']->setDefault( $egRatingsShowWhenDisabled );
+		
+		$params['incsummary'] = new Parameter( 'incsummary', Parameter::TYPE_BOOLEAN );
+		$params['incsummary']->setDescription( wfMsg( 'ratings-par-incsummary' ) );			
+		$params['incsummary']->setDefault( $egRatingsIncSummary );		
 		
 		return $params;
 	}
@@ -97,7 +97,7 @@ final class RatingsStars extends ParserHook {
 	 * @return string
 	 */
 	public function render( array $parameters ) {
-		$this->loadJs();
+		$this->loadJs( $parameters );
 		
 		$parameters['page'] = $parameters['page'] === false ? $GLOBALS['wgTitle'] : Title::newFromText( $parameters['page'] ); 
 		
@@ -119,46 +119,15 @@ final class RatingsStars extends ParserHook {
 			);
 		}
 		
-		if ( true ) {
-			$tagData = $this->getCurrentRating( $parameters['tag'] );
-			
-			$message = htmlspecialchars( wfMsgExt(
-				'ratings-stars-current-score',
-				'parsemag',
-				$tagData['avarage'] + 1, // Internal representatation is 0 based, don't confuse poor users :)
-				$tagData['count']
-			) );
-			
-			array_unshift( $inputs, $message . '<br />' );
+		if ( $parameters['incsummary'] ) {
+			array_unshift( $inputs, '{{#votesummary:page=' . $parameters['page']->getFullText() . '|tag=' . $parameters['tag'] . '}}<br />' );
 		}
 		
 		return Html::rawElement(
 			'div',
-			array( 'style' => 'display:inline; position:static' ),
+			array( 'style' => 'display:none; position:static', 'class' => 'starrating-div' ),
 			implode( '', $inputs )
 		);
-	}
-	
-	/**
-	 * Returns the data for the tag in an array, or false is there is no data.
-	 * 
-	 * @param string $tagName
-	 * 
-	 * @return false or array
-	 */
-	protected function getCurrentRating( $tagName ) {
-		$title = $GLOBALS['wgTitle']->getFullText();
-		
-		if ( !array_key_exists( $title, self::$pageRatings ) ) {
-			self::$pageRatings[$title] = array();
-			
-			// The keys are the tag ids, but they are not known here, so change to tag names, which are known.
-			foreach ( Ratings::getPageRatings( $GLOBALS['wgTitle'] ) as $tagId => $tagData ) {
-				self::$pageRatings[$title][$tagData['name']] = array_merge( array( 'id' => $tagId ), $tagData );
-			}
-		}
-		
-		return array_key_exists( $tagName, self::$pageRatings[$title] ) ? self::$pageRatings[$title][$tagName] : false;
 	}
 	
 	/**
@@ -166,8 +135,10 @@ final class RatingsStars extends ParserHook {
 	 * Takes care of non-RL compatibility.
 	 * 
 	 * @since 0.1
+	 * 
+	 * @param array $parameters
 	 */
-	protected function loadJs() {
+	protected function loadJs( array $parameters ) {
 		static $loadedJs = false;
 		
 		if ( $loadedJs ) {
@@ -176,7 +147,7 @@ final class RatingsStars extends ParserHook {
 		
 		$loadedJs = true;
 		
-		$this->addJSWikiData();
+		$this->addJSWikiData( $parameters );
 		
 		// For backward compatibility with MW < 1.17.
 		if ( is_callable( array( $this->parser->getOutput(), 'addModules' ) ) ) {
@@ -208,11 +179,13 @@ final class RatingsStars extends ParserHook {
 	 * Ouput the wiki data needed to display the licence links.
 	 * 
 	 * @since 0.1
+	 * 
+	 * @param array $parameters
 	 */
-	protected function addJSWikiData() {
+	protected function addJSWikiData( array $parameters ) {
 		$this->parser->getOutput()->addHeadItem(
 			Html::inlineScript(
-				'' //'var wgIncWPWikis =' . json_encode( $egIncWPWikis ) . ';'
+				'var wgRatingsShowDisabled =' . json_encode( $parameters['showdisabled'] ) . ';'
 			)
 		);
 	}

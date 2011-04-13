@@ -8,6 +8,19 @@
 
 (function($) { $( document ).ready( function() {
 
+	var canRate = true; // TODO
+	
+	if ( !canRate && !window.wgRatingsShowDisabled ) {
+		// If the user is not allowed to rate and ratings should not be
+		// shown disabled for unauthorized users, simply don't bother any setup.
+		return;
+	}
+	
+	/**
+	 * Self executing function to setup the rating stars on the page.
+	 * This is done by finding all inputs belonging to a single rating
+	 * element and initiating them as a rating element.
+	 */	
 	(function setupRatingElements() {
 		var groups = [];
 		
@@ -25,15 +38,31 @@
 				},
 			});
 		}
+		
+		$( '.starrating-div' ).css( 'display', 'inline' );
+		
+		if ( canRate ) {
+			initGetRatings();
+		}
+		else {
+			$.each($(".starrating"), function(i,v) {
+				var self = $(this);
+				
+				if ( typeof self.attr( 'page' ) != 'undefined' ) {
+					self.rating( 'disable' );
+				}
+			});				
+		}
+		
 	})();
 	
 	/**
-	 * Self executing function to setup the rating stars on the page.
+	 * Self executing function to set the current values of the rating elements.
 	 * This is done by finding all tags for all pages that should
 	 * be displayed and then gathering this data via the API to show
 	 * the current vote values.
 	 */
-	(function initGetRatings() {
+	function initGetRatings() {
 		var ratings = {};
 		
 		$.each($(".starrating"), function(i,v) {
@@ -51,7 +80,7 @@
 		for ( i in ratings ) {
 			getRatingsForPage( i, $.unique( ratings[i] ) );
 		}
-	})();
+	}
 	
 	/**
 	 * Obtain the vote values for a set of tags of a single page,

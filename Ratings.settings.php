@@ -27,3 +27,6 @@ $wgGroupPermissions['*']['rate'] = true;
 
 # Set to true to invalidate the cache of pages when a vote for them is made.
 $egRatingsInvalidateOnVote = false;
+
+# Include a summary by default above ratings?
+$egRatingsIncSummary = false;

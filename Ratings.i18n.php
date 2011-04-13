@@ -20,9 +20,10 @@ $messages = array();
 $messages['en'] = array(
 	'ratings-desc' => 'Simple rating extension for MediaWiki',
 
-	'ratings-par-page' => 'The page the rating is for.',
+	'ratings-par-page' => 'The page the rating applies to.',
 	'ratings-par-tag' => 'Tha rating tag. The tag indicates what "property" of the page gets rated.',
 	'ratings-par-showdisabled' => 'Show ratings when the user can not vote (in read-only mode).',
+	'ratings-par-incsummary' => 'Show a summary of the current votes above the rating element?',
 
 	'ratings-stars-current-score' => 'Current user rating: $1 ($2 {{PLURAL:$2|rating|ratings}})',
 );
@@ -31,5 +32,5 @@ $messages['en'] = array(
  * @author Jeroen De Dauw
  */
 $messages['qqq'] = array(
-	'includewp-desc' => '{{desc}}',
+	'ratings-desc' => '{{desc}}',
 );
